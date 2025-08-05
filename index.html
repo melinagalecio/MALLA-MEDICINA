@@ -1,176 +1,93 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Malla Interactiva - Medicina 2024</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #ffe6f0;
-      padding: 30px;
-    }
-    h1 {
-      text-align: center;
-      color: #cc0066;
-    }
-    .ciclo {
-      margin-bottom: 30px;
-    }
-    .ciclo h2 {
-      color: #000;
-    }
-    .curso {
-      display: inline-block;
-      padding: 10px 15px;
-      margin: 5px;
-      border: 2px solid #cc0066;
-      border-radius: 8px;
-      background-color: #fff0f5;
-      color: #cc0066;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .curso.aprobado {
-      background-color: #ffccdf;
-      text-decoration: line-through;
-      color: #666;
-    }
-    .curso.bloqueado {
-      opacity: 0.3;
-      pointer-events: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>Malla Interactiva de Medicina 2024</h1>
-  <div id="malla"></div>
+const cursos = JSON.parse(localStorage.getItem('cursosMedicina2024')) || [];
+const cursos = [
+  // CICLO 1
+  { ciclo: 1, id: 'mate', nombre: 'Matemática', prerequisitos: [] },
+  { ciclo: 1, id: 'quimica', nombre: 'Química General', prerequisitos: [] },
+  { ciclo: 1, id: 'biofisica', nombre: 'Biofísica Médica', prerequisitos: [] },
+  { ciclo: 1, id: 'biocel', nombre: 'Biología Celular', prerequisitos: [] },
+  { ciclo: 1, id: 'metodologia', nombre: 'Metodología del Aprendizaje Universitario', prerequisitos: [] },
+  { ciclo: 1, id: 'introprof', nombre: 'Introducción a la Profesión', prerequisitos: [] },
+  { ciclo: 1, id: 'com1', nombre: 'Comunicación I', prerequisitos: [] },
 
-  <script>
-    const cursos = [
-      { ciclo: 1, nombre: 'Matemática', id: 'c1_1', prerequisitos: [] },
-      { ciclo: 1, nombre: 'Química General', id: 'c1_2', prerequisitos: [] },
-      { ciclo: 1, nombre: 'Biofísica Médica', id: 'c1_3', prerequisitos: [] },
-      { ciclo: 1, nombre: 'Biología Celular', id: 'c1_4', prerequisitos: [] },
-      { ciclo: 1, nombre: 'Metodología del Aprendizaje Universitario', id: 'c1_5', prerequisitos: [] },
-      { ciclo: 1, nombre: 'Introducción a la Profesión', id: 'c1_6', prerequisitos: [] },
-      { ciclo: 1, nombre: 'Comunicación I', id: 'c1_7', prerequisitos: [] },
+  // CICLO 2
+  { ciclo: 2, id: 'com2', nombre: 'Comunicación II', prerequisitos: ['com1'] },
+  { ciclo: 2, id: 'biomol', nombre: 'Biología Molecular', prerequisitos: ['biocel'] },
+  { ciclo: 2, id: 'excretor', nombre: 'Sistema Excretor', prerequisitos: ['quimica', 'biocel'] },
+  { ciclo: 2, id: 'bioquimica', nombre: 'Bioquímica Médica', prerequisitos: ['quimica', 'biocel'] },
+  { ciclo: 2, id: 'casos1', nombre: 'Casos Integradores I', prerequisitos: [] },
+  { ciclo: 2, id: 'locomotor', nombre: 'Aparato Locomotor', prerequisitos: ['biofisica'] },
 
-      { ciclo: 2, nombre: 'Comunicación II', id: 'c2_1', prerequisitos: ['c1_7'] },
-      { ciclo: 2, nombre: 'Biología Molecular', id: 'c2_2', prerequisitos: ['c1_4'] },
-      { ciclo: 2, nombre: 'Sistema Excretor', id: 'c2_3', prerequisitos: [] },
-      { ciclo: 2, nombre: 'Bioquímica Médica', id: 'c2_4', prerequisitos: [] },
-      { ciclo: 2, nombre: 'Casos Integradores I', id: 'c2_5', prerequisitos: [] },
-      { ciclo: 2, nombre: 'Aparato Locomotor', id: 'c2_6', prerequisitos: [] },
+  // CICLO 3
+  { ciclo: 3, id: 'casos2', nombre: 'Casos Integradores II', prerequisitos: ['casos1'] },
+  { ciclo: 3, id: 'filo', nombre: 'Filosofía y Pensamiento Crítico', prerequisitos: [] },
+  { ciclo: 3, id: 'repro', nombre: 'Sistema Reproductor', prerequisitos: ['locomotor'] },
+  { ciclo: 3, id: 'endocrino', nombre: 'Sistema Endocrino', prerequisitos: ['bioquimica'] },
+  { ciclo: 3, id: 'nervioso', nombre: 'Sistema Nervioso', prerequisitos: ['bioquimica', 'biofisica'] },
+  { ciclo: 3, id: 'medsoc', nombre: 'Medicina Social y Medio Ambiente', prerequisitos: [] },
+  { ciclo: 3, id: 'recursos', nombre: 'Recursos Digitales', prerequisitos: [] },
 
-      { ciclo: 3, nombre: 'Casos Integradores II', id: 'c3_1', prerequisitos: ['c2_5'] },
-      { ciclo: 3, nombre: 'Filosofía y Pensamiento Crítico', id: 'c3_2', prerequisitos: [] },
-      { ciclo: 3, nombre: 'Sistema Reproductor', id: 'c3_3', prerequisitos: [] },
-      { ciclo: 3, nombre: 'Sistema Endocrino', id: 'c3_4', prerequisitos: [] },
-      { ciclo: 3, nombre: 'Sistema Nervioso', id: 'c3_5', prerequisitos: [] },
-      { ciclo: 3, nombre: 'Medicina Social y Medio Ambiente', id: 'c3_6', prerequisitos: [] },
-      { ciclo: 3, nombre: 'Recursos Digitales', id: 'c3_7', prerequisitos: [] },
+  // CICLO 4
+  { ciclo: 4, id: 'sangre', nombre: 'Sangre y Sistema Inmune', prerequisitos: ['nervioso'] },
+  { ciclo: 4, id: 'casos3', nombre: 'Casos Integradores III', prerequisitos: ['casos2'] },
+  { ciclo: 4, id: 'respira', nombre: 'Sistema Respiratorio', prerequisitos: ['sangre'] },
+  { ciclo: 4, id: 'digestivo', nombre: 'Sistema Digestivo', prerequisitos: ['sangre'] },
+  { ciclo: 4, id: 'cardio', nombre: 'Sistema Cardiovascular', prerequisitos: ['sangre'] },
+  { ciclo: 4, id: 'genetica', nombre: 'Genética Médica', prerequisitos: ['biomol'] },
 
-      { ciclo: 4, nombre: 'Sangre y Sistema Inmune', id: 'c4_1', prerequisitos: [] },
-      { ciclo: 4, nombre: 'Casos Integradores III', id: 'c4_2', prerequisitos: ['c3_1'] },
-      { ciclo: 4, nombre: 'Sistema Respiratorio', id: 'c4_3', prerequisitos: [] },
-      { ciclo: 4, nombre: 'Sistema Digestivo', id: 'c4_4', prerequisitos: [] },
-      { ciclo: 4, nombre: 'Sistema Cardiovascular', id: 'c4_5', prerequisitos: [] },
-      { ciclo: 4, nombre: 'Genética Médica', id: 'c4_6', prerequisitos: [] },
+  // CICLO 5
+  { ciclo: 5, id: 'pato', nombre: 'Patología General y Especializada', prerequisitos: ['sangre'] },
+  { ciclo: 5, id: 'micro', nombre: 'Microbiología y Parasitología', prerequisitos: ['sangre'] },
+  { ciclo: 5, id: 'epi', nombre: 'Epidemiología y Medicina Preventiva', prerequisitos: [] },
+  { ciclo: 5, id: 'farma', nombre: 'Farmacología', prerequisitos: ['pato'] },
+  { ciclo: 5, id: 'casos4', nombre: 'Casos Integradores IV', prerequisitos: ['casos3'] },
 
-      { ciclo: 5, nombre: 'Patología General y Especializada', id: 'c5_1', prerequisitos: [] },
-      { ciclo: 5, nombre: 'Microbiología y Parasitología', id: 'c5_2', prerequisitos: [] },
-      { ciclo: 5, nombre: 'Epidemiología y Medicina Preventiva', id: 'c5_3', prerequisitos: [] },
-      { ciclo: 5, nombre: 'Farmacología', id: 'c5_4', prerequisitos: [] },
-      { ciclo: 5, nombre: 'Casos Integradores IV', id: 'c5_5', prerequisitos: ['c4_2'] },
+  // CICLO 6
+  { ciclo: 6, id: 'semio', nombre: 'Semiología Médica', prerequisitos: ['pato'] },
+  { ciclo: 6, id: 'pac1', nombre: 'Médico Paciente I', prerequisitos: [] },
+  { ciclo: 6, id: 'imagen', nombre: 'Diagnóstico por Imágenes y Lab. Clínico', prerequisitos: [] },
+  { ciclo: 6, id: 'info', nombre: 'Informática Médica y Bioestadística', prerequisitos: [] },
+  { ciclo: 6, id: 'fisio', nombre: 'Fisiopatología', prerequisitos: ['pato'] },
 
-      { ciclo: 6, nombre: 'Semiología Médica', id: 'c6_1', prerequisitos: [] },
-      { ciclo: 6, nombre: 'Médico Paciente I', id: 'c6_2', prerequisitos: [] },
-      { ciclo: 6, nombre: 'Diagnóstico por Imágenes y Lab. Clínico', id: 'c6_3', prerequisitos: [] },
-      { ciclo: 6, nombre: 'Informática Médica y Bioestadística', id: 'c6_4', prerequisitos: [] },
-      { ciclo: 6, nombre: 'Fisiopatología', id: 'c6_5', prerequisitos: [] },
+  // CICLO 7
+  { ciclo: 7, id: 'med1', nombre: 'Medicina I', prerequisitos: ['semio'] },
+  { ciclo: 7, id: 'evi', nombre: 'Medicina Basada en Evidencias e IA', prerequisitos: [] },
+  { ciclo: 7, id: 'pac2', nombre: 'Médico Paciente II', prerequisitos: ['pac1'] },
+  { ciclo: 7, id: 'etica', nombre: 'Ética y Deontología Médica', prerequisitos: [] },
 
-      { ciclo: 7, nombre: 'Medicina I', id: 'c7_1', prerequisitos: [] },
-      { ciclo: 7, nombre: 'Medicina Basada en Evidencias e IA', id: 'c7_2', prerequisitos: [] },
-      { ciclo: 7, nombre: 'Médico Paciente II', id: 'c7_3', prerequisitos: [] },
-      { ciclo: 7, nombre: 'Ética y Deontología Médica', id: 'c7_4', prerequisitos: [] },
+  // CICLO 8
+  { ciclo: 8, id: 'med2', nombre: 'Medicina II', prerequisitos: ['med1'] },
+  { ciclo: 8, id: 'metinv', nombre: 'Metodología de la Investigación', prerequisitos: [] },
+  { ciclo: 8, id: 'pac3', nombre: 'Médico Paciente III', prerequisitos: ['pac2'] },
+  { ciclo: 8, id: 'psico', nombre: 'Psicología Médica', prerequisitos: [] },
 
-      { ciclo: 8, nombre: 'Medicina II', id: 'c8_1', prerequisitos: [] },
-      { ciclo: 8, nombre: 'Metodología de la Investigación', id: 'c8_2', prerequisitos: [] },
-      { ciclo: 8, nombre: 'Médico Paciente III', id: 'c8_3', prerequisitos: [] },
-      { ciclo: 8, nombre: 'Psicología Médica', id: 'c8_4', prerequisitos: [] },
+  // CICLO 9
+  { ciclo: 9, id: 'cir1', nombre: 'Cirugía I', prerequisitos: ['med2'] },
+  { ciclo: 9, id: 'proj', nombre: 'Proyecto de Investigación', prerequisitos: ['metinv'] },
+  { ciclo: 9, id: 'multi', nombre: 'Módulo Integrador Multidisciplinario', prerequisitos: [] },
+  { ciclo: 9, id: 'elect1', nombre: 'Electivo I', prerequisitos: [] },
 
-      { ciclo: 9, nombre: 'Cirugía I', id: 'c9_1', prerequisitos: [] },
-      { ciclo: 9, nombre: 'Proyecto de Investigación', id: 'c9_2', prerequisitos: [] },
-      { ciclo: 9, nombre: 'Módulo Integrador Multidisciplinario', id: 'c9_3', prerequisitos: [] },
-      { ciclo: 9, nombre: 'Electivo I', id: 'c9_4', prerequisitos: [] },
+  // CICLO 10
+  { ciclo: 10, id: 'cir2', nombre: 'Cirugía II', prerequisitos: ['cir1'] },
+  { ciclo: 10, id: 'psiq', nombre: 'Psiquiatría', prerequisitos: [] },
+  { ciclo: 10, id: 'tesis1', nombre: 'Tesis I', prerequisitos: ['proj'] },
+  { ciclo: 10, id: 'articulo', nombre: 'Redacción de Artículo Científico', prerequisitos: ['proj'] },
+  { ciclo: 10, id: 'elect2', nombre: 'Electivo II', prerequisitos: [] },
 
-      { ciclo: 10, nombre: 'Cirugía II', id: 'c10_1', prerequisitos: [] },
-      { ciclo: 10, nombre: 'Psiquiatría', id: 'c10_2', prerequisitos: [] },
-      { ciclo: 10, nombre: 'Tesis I', id: 'c10_3', prerequisitos: [] },
-      { ciclo: 10, nombre: 'Redacción de Artículo Científico', id: 'c10_4', prerequisitos: [] },
-      { ciclo: 10, nombre: 'Electivo II', id: 'c10_5', prerequisitos: [] },
+  // CICLO 11
+  { ciclo: 11, id: 'gin', nombre: 'Ginecología y Obstetricia', prerequisitos: ['cir2'] },
+  { ciclo: 11, id: 'elect2b', nombre: 'Electivo II (opcional)', prerequisitos: [] },
+  { ciclo: 11, id: 'global', nombre: 'Salud Global', prerequisitos: [] },
+  { ciclo: 11, id: 'legal', nombre: 'Medicina Legal', prerequisitos: [] },
 
-      { ciclo: 11, nombre: 'Ginecología y Obstetricia', id: 'c11_1', prerequisitos: [] },
-      { ciclo: 11, nombre: 'Electivo II', id: 'c11_2', prerequisitos: [] },
-      { ciclo: 11, nombre: 'Salud Global', id: 'c11_3', prerequisitos: [] },
-      { ciclo: 11, nombre: 'Medicina Legal', id: 'c11_4', prerequisitos: [] },
+  // CICLO 12
+  { ciclo: 12, id: 'pedia', nombre: 'Pediatría', prerequisitos: ['gin'] },
+  { ciclo: 12, id: 'tesis2', nombre: 'Tesis II', prerequisitos: ['tesis1'] },
+  { ciclo: 12, id: 'eco', nombre: 'Gerencia y Economía en Salud', prerequisitos: [] },
+  { ciclo: 12, id: 'taller', nombre: 'Taller de Casos Clínicos', prerequisitos: [] },
 
-      { ciclo: 12, nombre: 'Pediatría', id: 'c12_1', prerequisitos: [] },
-      { ciclo: 12, nombre: 'Tesis II', id: 'c12_2', prerequisitos: ['c10_3'] },
-      { ciclo: 12, nombre: 'Gerencia y Economía en Salud', id: 'c12_3', prerequisitos: [] },
-      { ciclo: 12, nombre: 'Taller de Casos Clínicos', id: 'c12_4', prerequisitos: [] },
-
-      { ciclo: 13, nombre: 'Internado de Medicina', id: 'c13_1', prerequisitos: [] },
-      { ciclo: 13, nombre: 'Internado de Pediatría', id: 'c13_2', prerequisitos: [] },
-      { ciclo: 14, nombre: 'Internado de Ginecobstetricia', id: 'c14_1', prerequisitos: [] },
-      { ciclo: 14, nombre: 'Internado de Cirugía', id: 'c14_2', prerequisitos: [] },
-    ];
-
-    const mallaDiv = document.getElementById('malla');
-    const totalCiclos = Math.max(...cursos.map(c => c.ciclo));
-
-    for (let ciclo = 1; ciclo <= totalCiclos; ciclo++) {
-      const divCiclo = document.createElement('div');
-      divCiclo.classList.add('ciclo');
-      divCiclo.innerHTML = `<h2>${ciclo}° Ciclo</h2>`;
-      cursos.filter(c => c.ciclo === ciclo).forEach(curso => {
-        const btn = document.createElement('div');
-        btn.classList.add('curso');
-        btn.id = curso.id;
-        btn.textContent = curso.nombre;
-        btn.dataset.prerequisitos = JSON.stringify(curso.prerequisitos);
-        divCiclo.appendChild(btn);
-      });
-      mallaDiv.appendChild(divCiclo);
-    }
-
-    function actualizarEstado() {
-      document.querySelectorAll('.curso').forEach(curso => {
-        const prereqs = JSON.parse(curso.dataset.prerequisitos);
-        const aprobado = curso.classList.contains('aprobado');
-        if (prereqs.length > 0 && !aprobado) {
-          const habilitado = prereqs.every(id => document.getElementById(id).classList.contains('aprobado'));
-          curso.classList.toggle('bloqueado', !habilitado);
-        } else if (prereqs.length === 0) {
-          curso.classList.remove('bloqueado');
-        }
-      });
-    }
-
-    function mostrarMensaje(nombreCurso) {
-      alert(`✅ ¡Felicidades Melina! Has aprobado «${nombreCurso}». ¡Sigue adelante! 🌸`);
-    }
-
-    document.addEventListener('click', e => {
-      if (e.target.classList.contains('curso')) {
-        const curso = e.target;
-        const fueAprobado = curso.classList.toggle('aprobado');
-        if (fueAprobado) mostrarMensaje(curso.textContent);
-        actualizarEstado();
-      }
-    });
-
-    actualizarEstado();
-  </script>
-</body>
-</html>
+  // INTERNADO
+  { ciclo: 13, id: 'internado1', nombre: 'Internado de Medicina', prerequisitos: ['pedia'] },
+  { ciclo: 13, id: 'internado2', nombre: 'Internado de Pediatría', prerequisitos: ['pedia'] },
+  { ciclo: 14, id: 'internado3', nombre: 'Internado de Ginecobstetricia', prerequisitos: ['internado1'] },
+  { ciclo: 14, id: 'internado4', nombre: 'Internado de Cirugía', prerequisitos: ['internado1'] },
+];
