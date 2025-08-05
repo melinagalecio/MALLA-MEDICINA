@@ -1,5 +1,81 @@
-const cursos = JSON.parse(localStorage.getItem('cursosMedicina2024')) || [];
-const cursos = [
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Interactiva - Medicina 2024</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffe6f0;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #cc0066;
+    }
+    .ciclo {
+      margin-bottom: 30px;
+    }
+    .ciclo h2 {
+      color: #000;
+    }
+    .curso {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 5px;
+      border: 2px solid #cc0066;
+      border-radius: 8px;
+      background-color: #fff0f5;
+      color: #cc0066;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .curso.aprobado {
+      background-color: #ffccdf;
+      text-decoration: line-through;
+      color: #666;
+    }
+    .curso.bloqueado {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    #mensajeBanner {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #cc0066;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 1000;
+    }
+    #guardarBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #cc0066;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva de Medicina 2024</h1>
+  <button id="guardarBtn">Guardar Progreso</button>
+  <div id="malla"></div>
+  <div id="mensajeBanner"></div>
+
+  <script>
+    const cursos = [
   // CICLO 1
   { ciclo: 1, id: 'mate', nombre: 'Matemática', prerequisitos: [] },
   { ciclo: 1, id: 'quimica', nombre: 'Química General', prerequisitos: [] },
@@ -85,9 +161,88 @@ const cursos = [
   { ciclo: 12, id: 'eco', nombre: 'Gerencia y Economía en Salud', prerequisitos: [] },
   { ciclo: 12, id: 'taller', nombre: 'Taller de Casos Clínicos', prerequisitos: [] },
 
-  // INTERNADO
+  // CICLO 13
   { ciclo: 13, id: 'internado1', nombre: 'Internado de Medicina', prerequisitos: ['pedia'] },
   { ciclo: 13, id: 'internado2', nombre: 'Internado de Pediatría', prerequisitos: ['pedia'] },
+
+  // CICLO 14
   { ciclo: 14, id: 'internado3', nombre: 'Internado de Ginecobstetricia', prerequisitos: ['internado1'] },
   { ciclo: 14, id: 'internado4', nombre: 'Internado de Cirugía', prerequisitos: ['internado1'] },
 ];
+    const mallaDiv = document.getElementById('malla');
+    const mensajeBanner = document.getElementById('mensajeBanner');
+    const guardarBtn = document.getElementById('guardarBtn');
+
+    function construirCursos() {
+      const guardados = JSON.parse(localStorage.getItem('cursosAprobados')) || [];
+      cursos.forEach(curso => {
+        const cicloId = `ciclo${curso.ciclo}`;
+        let divCiclo = document.getElementById(cicloId);
+
+        if (!divCiclo) {
+          divCiclo = document.createElement('div');
+          divCiclo.classList.add('ciclo');
+          divCiclo.id = cicloId;
+          divCiclo.innerHTML = `<h2>${curso.ciclo}° Ciclo</h2>`;
+          mallaDiv.appendChild(divCiclo);
+        }
+
+        const btn = document.createElement('div');
+        btn.classList.add('curso');
+        btn.id = curso.id;
+        btn.textContent = curso.nombre;
+        btn.dataset.prerequisitos = JSON.stringify(curso.prerequisitos);
+
+        if (guardados.includes(curso.id)) {
+          btn.classList.add('aprobado');
+        }
+
+        divCiclo.appendChild(btn);
+      });
+    }
+
+    function actualizarEstado() {
+      document.querySelectorAll('.curso').forEach(curso => {
+        const prereqs = JSON.parse(curso.dataset.prerequisitos);
+        const aprobado = curso.classList.contains('aprobado');
+
+        if (prereqs.length > 0 && !aprobado) {
+          const habilitado = prereqs.every(id => {
+            const el = document.getElementById(id);
+            return el && el.classList.contains('aprobado');
+          });
+          curso.classList.toggle('bloqueado', !habilitado);
+        } else if (prereqs.length === 0) {
+          curso.classList.remove('bloqueado');
+        }
+      });
+    }
+
+    function mostrarMensaje(nombreCurso) {
+      mensajeBanner.textContent = `¡Felicidades Melina! Has aprobado «${nombreCurso}». ¡Sigue adelante! 🌸`;
+      mensajeBanner.style.opacity = 1;
+      setTimeout(() => {
+        mensajeBanner.style.opacity = 0;
+      }, 3000);
+    }
+
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('curso')) {
+        const curso = e.target;
+        const fueAprobado = curso.classList.toggle('aprobado');
+        if (fueAprobado) mostrarMensaje(curso.textContent);
+        actualizarEstado();
+      }
+    });
+
+    guardarBtn.addEventListener('click', () => {
+      const aprobados = Array.from(document.querySelectorAll('.curso.aprobado')).map(c => c.id);
+      localStorage.setItem('cursosAprobados', JSON.stringify(aprobados));
+      alert('Progreso guardado exitosamente 📝');
+    });
+
+    construirCursos();
+    actualizarEstado();
+  </script>
+</body>
+</html>
