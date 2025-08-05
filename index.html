@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Interactiva - Medicina 2024</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffe6f0;
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #cc0066;
+    }
+    .ciclo {
+      margin-bottom: 30px;
+    }
+    .ciclo h2 {
+      color: #000;
+    }
+    .curso {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 5px;
+      border: 2px solid #cc0066;
+      border-radius: 8px;
+      background-color: #fff0f5;
+      color: #cc0066;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .curso.aprobado {
+      background-color: #ffccdf;
+      text-decoration: line-through;
+      color: #666;
+    }
+    .curso.bloqueado {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva de Medicina 2024</h1>
+  <div id="malla"></div>
+
+  <script>
+    const cursos = [
+      { ciclo: 1, nombre: 'Matemática', id: 'c1_1', prerequisitos: [] },
+      { ciclo: 1, nombre: 'Química General', id: 'c1_2', prerequisitos: [] },
+      { ciclo: 1, nombre: 'Biofísica Médica', id: 'c1_3', prerequisitos: [] },
+      { ciclo: 1, nombre: 'Biología Celular', id: 'c1_4', prerequisitos: [] },
+      { ciclo: 1, nombre: 'Metodología del Aprendizaje Universitario', id: 'c1_5', prerequisitos: [] },
+      { ciclo: 1, nombre: 'Introducción a la Profesión', id: 'c1_6', prerequisitos: [] },
+      { ciclo: 1, nombre: 'Comunicación I', id: 'c1_7', prerequisitos: [] },
+
+      { ciclo: 2, nombre: 'Comunicación II', id: 'c2_1', prerequisitos: ['c1_7'] },
+      { ciclo: 2, nombre: 'Biología Molecular', id: 'c2_2', prerequisitos: ['c1_4'] },
+      { ciclo: 2, nombre: 'Sistema Excretor', id: 'c2_3', prerequisitos: [] },
+      { ciclo: 2, nombre: 'Bioquímica Médica', id: 'c2_4', prerequisitos: [] },
+      { ciclo: 2, nombre: 'Casos Integradores I', id: 'c2_5', prerequisitos: [] },
+      { ciclo: 2, nombre: 'Aparato Locomotor', id: 'c2_6', prerequisitos: [] },
+
+      { ciclo: 3, nombre: 'Casos Integradores II', id: 'c3_1', prerequisitos: ['c2_5'] },
+      { ciclo: 3, nombre: 'Filosofía y Pensamiento Crítico', id: 'c3_2', prerequisitos: [] },
+      { ciclo: 3, nombre: 'Sistema Reproductor', id: 'c3_3', prerequisitos: [] },
+      { ciclo: 3, nombre: 'Sistema Endocrino', id: 'c3_4', prerequisitos: [] },
+      { ciclo: 3, nombre: 'Sistema Nervioso', id: 'c3_5', prerequisitos: [] },
+      { ciclo: 3, nombre: 'Medicina Social y Medio Ambiente', id: 'c3_6', prerequisitos: [] },
+      { ciclo: 3, nombre: 'Recursos Digitales', id: 'c3_7', prerequisitos: [] },
+
+      { ciclo: 4, nombre: 'Sangre y Sistema Inmune', id: 'c4_1', prerequisitos: [] },
+      { ciclo: 4, nombre: 'Casos Integradores III', id: 'c4_2', prerequisitos: ['c3_1'] },
+      { ciclo: 4, nombre: 'Sistema Respiratorio', id: 'c4_3', prerequisitos: [] },
+      { ciclo: 4, nombre: 'Sistema Digestivo', id: 'c4_4', prerequisitos: [] },
+      { ciclo: 4, nombre: 'Sistema Cardiovascular', id: 'c4_5', prerequisitos: [] },
+      { ciclo: 4, nombre: 'Genética Médica', id: 'c4_6', prerequisitos: [] },
+
+      { ciclo: 5, nombre: 'Patología General y Especializada', id: 'c5_1', prerequisitos: [] },
+      { ciclo: 5, nombre: 'Microbiología y Parasitología', id: 'c5_2', prerequisitos: [] },
+      { ciclo: 5, nombre: 'Epidemiología y Medicina Preventiva', id: 'c5_3', prerequisitos: [] },
+      { ciclo: 5, nombre: 'Farmacología', id: 'c5_4', prerequisitos: [] },
+      { ciclo: 5, nombre: 'Casos Integradores IV', id: 'c5_5', prerequisitos: ['c4_2'] },
+
+      { ciclo: 6, nombre: 'Semiología Médica', id: 'c6_1', prerequisitos: [] },
+      { ciclo: 6, nombre: 'Médico Paciente I', id: 'c6_2', prerequisitos: [] },
+      { ciclo: 6, nombre: 'Diagnóstico por Imágenes y Lab. Clínico', id: 'c6_3', prerequisitos: [] },
+      { ciclo: 6, nombre: 'Informática Médica y Bioestadística', id: 'c6_4', prerequisitos: [] },
+      { ciclo: 6, nombre: 'Fisiopatología', id: 'c6_5', prerequisitos: [] },
+
+      { ciclo: 7, nombre: 'Medicina I', id: 'c7_1', prerequisitos: [] },
+      { ciclo: 7, nombre: 'Medicina Basada en Evidencias e IA', id: 'c7_2', prerequisitos: [] },
+      { ciclo: 7, nombre: 'Médico Paciente II', id: 'c7_3', prerequisitos: [] },
+      { ciclo: 7, nombre: 'Ética y Deontología Médica', id: 'c7_4', prerequisitos: [] },
+
+      { ciclo: 8, nombre: 'Medicina II', id: 'c8_1', prerequisitos: [] },
+      { ciclo: 8, nombre: 'Metodología de la Investigación', id: 'c8_2', prerequisitos: [] },
+      { ciclo: 8, nombre: 'Médico Paciente III', id: 'c8_3', prerequisitos: [] },
+      { ciclo: 8, nombre: 'Psicología Médica', id: 'c8_4', prerequisitos: [] },
+
+      { ciclo: 9, nombre: 'Cirugía I', id: 'c9_1', prerequisitos: [] },
+      { ciclo: 9, nombre: 'Proyecto de Investigación', id: 'c9_2', prerequisitos: [] },
+      { ciclo: 9, nombre: 'Módulo Integrador Multidisciplinario', id: 'c9_3', prerequisitos: [] },
+      { ciclo: 9, nombre: 'Electivo I', id: 'c9_4', prerequisitos: [] },
+
+      { ciclo: 10, nombre: 'Cirugía II', id: 'c10_1', prerequisitos: [] },
+      { ciclo: 10, nombre: 'Psiquiatría', id: 'c10_2', prerequisitos: [] },
+      { ciclo: 10, nombre: 'Tesis I', id: 'c10_3', prerequisitos: [] },
+      { ciclo: 10, nombre: 'Redacción de Artículo Científico', id: 'c10_4', prerequisitos: [] },
+      { ciclo: 10, nombre: 'Electivo II', id: 'c10_5', prerequisitos: [] },
+
+      { ciclo: 11, nombre: 'Ginecología y Obstetricia', id: 'c11_1', prerequisitos: [] },
+      { ciclo: 11, nombre: 'Electivo II', id: 'c11_2', prerequisitos: [] },
+      { ciclo: 11, nombre: 'Salud Global', id: 'c11_3', prerequisitos: [] },
+      { ciclo: 11, nombre: 'Medicina Legal', id: 'c11_4', prerequisitos: [] },
+
+      { ciclo: 12, nombre: 'Pediatría', id: 'c12_1', prerequisitos: [] },
+      { ciclo: 12, nombre: 'Tesis II', id: 'c12_2', prerequisitos: ['c10_3'] },
+      { ciclo: 12, nombre: 'Gerencia y Economía en Salud', id: 'c12_3', prerequisitos: [] },
+      { ciclo: 12, nombre: 'Taller de Casos Clínicos', id: 'c12_4', prerequisitos: [] },
+
+      { ciclo: 13, nombre: 'Internado de Medicina', id: 'c13_1', prerequisitos: [] },
+      { ciclo: 13, nombre: 'Internado de Pediatría', id: 'c13_2', prerequisitos: [] },
+      { ciclo: 14, nombre: 'Internado de Ginecobstetricia', id: 'c14_1', prerequisitos: [] },
+      { ciclo: 14, nombre: 'Internado de Cirugía', id: 'c14_2', prerequisitos: [] },
+    ];
+
+    const mallaDiv = document.getElementById('malla');
+    const totalCiclos = Math.max(...cursos.map(c => c.ciclo));
+
+    for (let ciclo = 1; ciclo <= totalCiclos; ciclo++) {
+      const divCiclo = document.createElement('div');
+      divCiclo.classList.add('ciclo');
+      divCiclo.innerHTML = `<h2>${ciclo}° Ciclo</h2>`;
+      cursos.filter(c => c.ciclo === ciclo).forEach(curso => {
+        const btn = document.createElement('div');
+        btn.classList.add('curso');
+        btn.id = curso.id;
+        btn.textContent = curso.nombre;
+        btn.dataset.prerequisitos = JSON.stringify(curso.prerequisitos);
+        divCiclo.appendChild(btn);
+      });
+      mallaDiv.appendChild(divCiclo);
+    }
+
+    function actualizarEstado() {
+      document.querySelectorAll('.curso').forEach(curso => {
+        const prereqs = JSON.parse(curso.dataset.prerequisitos);
+        const aprobado = curso.classList.contains('aprobado');
+        if (prereqs.length > 0 && !aprobado) {
+          const habilitado = prereqs.every(id => document.getElementById(id).classList.contains('aprobado'));
+          curso.classList.toggle('bloqueado', !habilitado);
+        } else if (prereqs.length === 0) {
+          curso.classList.remove('bloqueado');
+        }
+      });
+    }
+
+    function mostrarMensaje(nombreCurso) {
+      alert(`✅ ¡Felicidades Melina! Has aprobado «${nombreCurso}». ¡Sigue adelante! 🌸`);
+    }
+
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('curso')) {
+        const curso = e.target;
+        const fueAprobado = curso.classList.toggle('aprobado');
+        if (fueAprobado) mostrarMensaje(curso.textContent);
+        actualizarEstado();
+      }
+    });
+
+    actualizarEstado();
+  </script>
+</body>
+</html>
